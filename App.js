@@ -8,11 +8,10 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 
 import { Provider } from 'react-redux';
-import { createStore, applyMiddleware } from 'redux';
+import { createStore, applyMiddleware, compose } from 'redux';
 import rootReducers from './redux/reducers';
 import thunk from 'redux-thunk';
 
-const store = createStore(rootReducers, applyMiddleware(thunk));
 
 import Landing from './components/auth/Landing';
 import Register from './components/auth/Register';
@@ -23,6 +22,14 @@ import Add from './components/Main/Add';
 import { app } from './database/db';
 
 const Stack = createStackNavigator();
+
+const store = createStore(
+  rootReducers,
+  compose(
+    applyMiddleware(thunk),
+    window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()
+  )
+);
 
 const App = () => {
   const [isLoading, setIsLoading] = useState(true);
