@@ -2,16 +2,14 @@ import React, { useEffect, useState } from 'react';
 
 import { View, Text } from 'react-native';
 
-import { initializeApp } from 'firebase/app';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
-import { getFirestore, collection } from 'firebase/firestore';
 
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 
 import { Provider } from 'react-redux';
 import { createStore, applyMiddleware } from 'redux';
-import rootReducers from './redux/reducers'
+import rootReducers from './redux/reducers';
 import thunk from 'redux-thunk';
 
 const store = createStore(rootReducers, applyMiddleware(thunk));
@@ -32,78 +30,70 @@ const App = () => {
 
   useEffect(() => {
     const auth = getAuth(app);
-
-    onAuthStateChanged(auth, (user) => {
+    onAuthStateChanged(auth, user => {
       if (!user) {
-        return setIsLogged(false);
+        setIsLogged(false);
       } else {
         setIsLogged(true);
       }
-
       setIsLoading(false);
     });
   }, []);
 
-  const Loading = () => {
-    return (
-      <View
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          width: '100vw',
-          height: '100vh',
-          gap: '1rem',
-        }}
-      >
-        <Text>Loading...</Text>
-      </View>
-    );
-  };
+  const Loading = () => (
+    <View
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: '100vw',
+        height: '100vh',
+        gap: '1rem',
+      }}
+    >
+      <Text>Loading...</Text>
+    </View>
+  );
 
-  const LoggedOutScreen = () => {
-    return (
+  const LoggedOutScreen = () => (
+    <NavigationContainer>
+      <Stack.Navigator>
+        <Stack.Screen
+          name='Landing'
+          component={Landing}
+          options={{ headerShown: false }}
+        />
+
+        <Stack.Screen
+          name='Register'
+          component={Register}
+        />
+
+        <Stack.Screen
+          name='Login'
+          component={Login}
+        />
+      </Stack.Navigator>
+    </NavigationContainer>
+  );
+
+  const LoggedInScreen = () => (
+    <Provider store={store}>
       <NavigationContainer>
-        <Stack.Navigator>
+        <Stack.Navigator initialRouteName='Main'>
           <Stack.Screen
-            name='Landing'
-            component={Landing}
+            name='Main'
+            component={Main}
             options={{ headerShown: false }}
           />
-
           <Stack.Screen
-            name='Register'
-            component={Register}
-          />
-
-          <Stack.Screen
-            name='Login'
-            component={Login}
+            name='Add'
+            component={Add}
           />
         </Stack.Navigator>
       </NavigationContainer>
-    );
-  };
-
-  const LoggedInScreen = () => {
-    return (
-      <Provider store={store}>
-        <NavigationContainer>
-          <Stack.Navigator initialRouteName='Main'>
-            <Stack.Screen
-              name='Main'
-              component={Main}
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen
-              name='Add'
-              component={Add}
-            />
-          </Stack.Navigator>
-        </NavigationContainer>
-      </Provider>
-    );
-  };
+    </Provider>
+  );
 
   if (isLoading) {
     return <Loading />;
