@@ -4,7 +4,7 @@ import { View, TextInput, Button } from 'react-native';
 import { createUserWithEmailAndPassword, getAuth } from 'firebase/auth';
 import {  collection, setDoc, doc } from 'firebase/firestore';
 
-import { app, db } from '../../App';
+import { app, db } from '../../database/db';
 
 const Register = () => {
   const [name, setName] = useState('');

@@ -3,7 +3,7 @@ import { View, TextInput, Button } from 'react-native';
 
 import { signInWithEmailAndPassword, getAuth } from 'firebase/auth';
 
-import { app } from '../../App';
+import { app } from '../../database/db';
 
 const Login = () => {
   const [email, setEmail] = useState('');

@@ -1,7 +1,7 @@
 import { collection, doc, getDoc } from 'firebase/firestore';
 import { USER_STATE_CHANGE } from '../constants';
 
-import { db, app } from '../../App';
+import { db, app } from '../../database/db';
 import { getAuth } from 'firebase/auth';
 
 async function getAllUsers() {
