@@ -1,32 +1,47 @@
 import { Camera, CameraType } from 'expo-camera';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Button, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
-const App = () => {
-  const [type, setType] = useState(CameraType.back);
-  const [permission, requestPermission] = Camera.useCameraPermissions();
+const Add = () => {
+    const [type, setType] = useState(CameraType.back);
+    const [permission, requestPermission] = Camera.useCameraPermissions();
 
-  if (!permission || !permission.granted) {
-    return <Text>No access to camera</Text>;
-  }
+    if (!permission) return <View />;
 
-  const toggleCameraType = () => {
-    setType(current =>
-      current === CameraType.back ? CameraType.front : CameraType.back
-    );
-  };
-
-  return (
-    <View style={{ width:' 90%', height: '10rem' }}>
-      <Camera type={type}>
-        <View>
-          <TouchableOpacity onPress={toggleCameraType}>
-            <Text>Flip Camera</Text>
-          </TouchableOpacity>
+    if (!permission.granted) {
+      return (
+        <View style={{ flex: 1 }}>
+          <Text style={{ textAlign: 'center' }}>
+            We need your permission to show the camera
+          </Text>
+          <Button
+            onPress={requestPermission}
+            title='grant permission'
+          />
         </View>
-      </Camera>
-    </View>
-  );
+      );
+    }
+
+    const toggleCameraType = () => {
+      setType(current =>
+        current === CameraType.back ? CameraType.front : CameraType.back
+      );
+    };
+
+    return (
+      <View>
+        <View style={{ height: '50vh', width: '100vw', display: 'flex', alignItems: 'center' }}>
+          <Camera
+            style={{ flex: 1, aspectRatio: 1, height: '50vh', width: '50vw' }}
+            type={type}
+          />
+          <Button
+            title='Flip Camera'
+            onPress={toggleCameraType}
+          />
+        </View>
+      </View>
+    );
 };
 
-export default App;
+export default Add;
