@@ -1,47 +1,108 @@
+import React, { useState, useEffect } from 'react';
 import { Camera, CameraType } from 'expo-camera';
-import React, { useState } from 'react';
-import { Button, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { View, Image } from 'react-native';
+import { Text, Button } from 'react-native-paper';
+import * as ImagePicker from 'expo-image-picker';
 
 const Add = () => {
-    const [type, setType] = useState(CameraType.back);
-    const [permission, requestPermission] = Camera.useCameraPermissions();
+  const [hasCameraPermission, setHasCameraPermission] = useState(null);
+  const [hasGalleryPermission, setHasGalleryPermission] = useState(null);
+  const [camera, setCamera] = useState(null);
+  const [image, setImage] = useState();
+  const [type, setType] = useState(CameraType.back);
 
-    if (!permission) return <View />;
+  useEffect(() => {
+    (async () => {
+      const cameraRequest = await Camera.requestCameraPermissionsAsync();
+      setHasCameraPermission(cameraRequest.status === 'granted');
+      const galleryRequest =
+        await ImagePicker.requestMediaLibraryPermissionsAsync();
+      setHasGalleryPermission(galleryRequest.status === 'granted');
+    })();
+  }, []);
 
-    if (!permission.granted) {
-      return (
-        <View style={{ flex: 1 }}>
-          <Text style={{ textAlign: 'center' }}>
-            We need your permission to show the camera
-          </Text>
-          <Button
-            onPress={requestPermission}
-            title='grant permission'
-          />
-        </View>
-      );
+  const takePicture = async () => {
+    if (camera) {
+      const data = await camera.takePictureAsync(null);
+      setImage(data.uri);
     }
+  };
 
-    const toggleCameraType = () => {
-      setType(current =>
-        current === CameraType.back ? CameraType.front : CameraType.back
-      );
-    };
+  const pickImage = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 1,
+    });
 
-    return (
-      <View>
-        <View style={{ height: '50vh', width: '100vw', display: 'flex', alignItems: 'center' }}>
-          <Camera
-            style={{ flex: 1, aspectRatio: 1, height: '50vh', width: '50vw' }}
-            type={type}
-          />
-          <Button
-            title='Flip Camera'
-            onPress={toggleCameraType}
-          />
-        </View>
-      </View>
+    if (!result.canceled) {
+      setImage(result.uri);
+    }
+  };
+
+  const toggleCameraType = () => {
+    setType(
+      type === Camera.Constants.Type.back
+        ? Camera.Constants.Type.front
+        : Camera.Constants.Type.back
     );
+  };
+
+  if (hasCameraPermission === null || hasGalleryPermission === null)
+    return <View />;
+
+  if (hasCameraPermission === false || hasGalleryPermission === null)
+    return <Text>No access to camera</Text>;
+
+  return (
+    <View style={{ flex: 1 }}>
+      <View style={{ flex: 1, flexDirection: 'row' }}>
+        {image ? (
+          <Image
+            source={{ uri: image }}
+            style={{ flex: 1 }}
+          />
+        ) : (
+          <Camera
+            ref={ref => setCamera(ref)}
+            style={{ flex: 1, aspectRatio: 1 }}
+            type={type}
+            ratio={'1:1'}
+          />
+        )}
+      </View>
+      <View
+        style={{
+          flex: 1,
+          flexDirection: 'column',
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}
+      >
+        <Button
+          icon='camera-switch'
+          onPress={() => toggleCameraType()}
+        >
+          Flip Camera
+        </Button>
+
+        <Button
+          icon='camera-plus-outline'
+          onPress={() => takePicture()}
+        >
+          Take Picture
+        </Button>
+        
+        <Button
+          icon='image-album'
+          onPress={() => pickImage()}
+        >
+          Select from the Gallery
+        </Button>
+      </View>
+    </View>
+  );
 };
 
 export default Add;
