@@ -18,6 +18,7 @@ import Register from './components/auth/Register';
 import Login from './components/auth/Login';
 import Main from './components/Main';
 import Add from './components/Main/Add';
+import Save from './components/Main/Save';
 
 import { app } from './database/db';
 
@@ -96,6 +97,10 @@ const App = () => {
           <Stack.Screen
             name='Add'
             component={Add}
+          />
+          <Stack.Screen
+            name='Save'
+            component={Save}
           />
         </Stack.Navigator>
       </NavigationContainer>
