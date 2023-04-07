@@ -9,15 +9,17 @@ import {
   uploadBytesResumable,
   getDownloadURL,
 } from 'firebase/storage';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import 'firebase/firestore';
 import 'firebase/storage';
 import 'firebase/auth';
 
-import { app } from '../../database/db';
+import { app, db } from '../../database/db';
 
 const auth = getAuth(app);
 const storage = getStorage(app);
 
-export const Save = ({ navigaion, route }) => {
+export const Save = ({ navigation, route }) => {
   const { image } = route.params;
   const [caption, setCaption] = useState('');
 
@@ -66,9 +68,22 @@ export const Save = ({ navigaion, route }) => {
       () => {
         getDownloadURL(uploadTask.snapshot.ref).then(downloadURL => {
           console.log(`File available at ${downloadURL}`);
+          savePostData(downloadURL);
         });
       }
     );
+  };
+
+  const savePostData = async (downloadURL) => {
+    const postsRef = collection(db, 'posts');
+
+    await addDoc(collection(postsRef, auth.currentUser.uid, 'userPosts'), {
+      downloadURL,
+      caption,
+      creation: serverTimestamp(),
+    })
+
+    navigation.popToTop();
   };
 
   return (
