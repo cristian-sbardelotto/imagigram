@@ -9,6 +9,7 @@ import {
   getDocs,
   getDoc,
   setDoc,
+  deleteDoc,
 } from 'firebase/firestore';
 import { db } from '../../database/db';
 
@@ -64,6 +65,11 @@ const Profile = ({ currentUser, posts, route }) => {
     setIsFollowing(true);
   };
 
+  const handleUnfollow = async () => {
+    await deleteDoc(doc(db, "following", currentUser.uid, 'userFollowing', uid));
+    setIsFollowing(false);
+  }
+
   if (!user) return <View />;
 
   return (
@@ -94,6 +100,14 @@ const Profile = ({ currentUser, posts, route }) => {
                       onPress={handleFollow}
                     >
                       Follow
+                    </Button>
+                  )}
+                  {isFollowing && (
+                    <Button
+                      icon='account-multiple-remove-outline'
+                      onPress={handleUnfollow}
+                    >
+                      Unfollow
                     </Button>
                   )}
                 </>
