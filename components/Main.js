@@ -12,6 +12,7 @@ import { app } from '../database/db';
 
 import Feed from './Main/Feed';
 import Profile from './Main/Profile';
+import Search from './Main/Search';
 
 const Tab = createMaterialBottomTabNavigator();
 
@@ -45,6 +46,21 @@ const Main = ({ fetchUser, fetchUserPosts }) => {
             ),
           }}
         />
+
+        <Tab.Screen
+          name='Search'
+          component={Search}
+          options={{
+            tabBarIcon: ({ color }) => (
+              <Icon
+                name='magnify'
+                size={30}
+                color={color}
+              />
+            ),
+          }}
+        />
+
         <Tab.Screen
           name='AddContainer'
           component={Null}
@@ -55,7 +71,7 @@ const Main = ({ fetchUser, fetchUserPosts }) => {
             },
           })}
           options={{
-            tabBarIcon: ({ color, size }) => (
+            tabBarIcon: ({ color }) => (
               <Icon
                 name='plus-box'
                 size={30}
@@ -76,7 +92,7 @@ const Main = ({ fetchUser, fetchUserPosts }) => {
             }
           })}
           options={{
-            tabBarIcon: ({ color, size }) => (
+            tabBarIcon: ({ color }) => (
               <Icon
                 name='account-circle'
                 size={30}

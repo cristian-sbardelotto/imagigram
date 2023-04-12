@@ -2,9 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { View, FlatList, Image } from 'react-native';
 import { Avatar, Card } from 'react-native-paper';
 
-import { getAuth } from 'firebase/auth';
 import { doc, collection, query, getDocs, getDoc } from 'firebase/firestore';
-import { app, db } from '../../database/db';
+import { db } from '../../database/db';
 
 import { connect } from 'react-redux';
 
@@ -13,10 +12,17 @@ const Profile = ({ currentUser, posts, route }) => {
   const [userPosts, setUserPosts] = useState([]);
   const { uid } = route.params;
 
-  const fetchUser = () => {
-    const auth = getAuth(app);
-    const uid = auth.currentUser.uid;
+  useEffect(() => {
+    if (uid && uid === currentUser.uid) {
+      setUser(currentUser);
+      setUserPosts(posts);
+    } else {
+      fetchUser();
+      fetchUserPosts();
+    }
+  }, [uid]);
 
+  const fetchUser = () => {
     const docRef = doc(db, 'users', uid);
 
     getDoc(docRef).then(snapshot => {
@@ -30,31 +36,19 @@ const Profile = ({ currentUser, posts, route }) => {
   };
 
   const fetchUserPosts = async () => {
-    const auth = getAuth(app);
-    const uid = auth.currentUser.uid;
-    const postsRef = doc(db, 'posts');
-    const queryPosts = query(collection(postsRef, uid, 'userPosts'));
-    const querySnapshot = await getDocs(queryPosts);
+   const postsRef = collection(db, 'posts');
 
-    const posts = querySnapshot.docs.map(doc => {
-      const data = doc.data();
-      const id = doc.id;
+   const queryPosts = query(collection(postsRef, uid, 'userPosts'));
+   const querySnapshot = await getDocs(queryPosts);
 
-      return { id, ...data };
-    });
+   const posts = querySnapshot.docs.map(doc => {
+     const data = doc.data();
+     const id = doc.id;
+     return { id, ...data };
+   });
 
-    setUserPosts(posts);
+   setUserPosts(posts);
   };
-
-  useEffect(() => {
-    if (uid && uid === currentUser.uid) {
-      setUser(currentUser);
-      setUserPosts(posts);
-    } else {
-      fetchUser();
-      fetchUserPosts();
-    }
-  }, [])
 
   if (!user) return <View />;
 
