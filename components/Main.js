@@ -5,7 +5,11 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { fetchUser, fetchUserPosts } from '../redux/actions';
+import {
+  fetchUser,
+  fetchUserPosts,
+  fetchUserFollowing,
+} from '../redux/actions';
 
 import { getAuth } from 'firebase/auth';
 import { app } from '../database/db';
@@ -18,10 +22,11 @@ const Tab = createMaterialBottomTabNavigator();
 
 const Null = () => null;
 
-const Main = ({ fetchUser, fetchUserPosts }) => {
+const Main = ({ fetchUser, fetchUserPosts, fetchUserFollowing }) => {
   useEffect(() => {
     fetchUser();
     fetchUserPosts();
+    fetchUserFollowing();
   }, []);
 
   const auth = getAuth(app);
@@ -83,13 +88,13 @@ const Main = ({ fetchUser, fetchUserPosts }) => {
         <Tab.Screen
           name='Profile'
           component={Profile}
-          listeners={({navigation}) => ({
-            tabPress: (event) => {
+          listeners={({ navigation }) => ({
+            tabPress: event => {
               event.preventDefault();
               navigation.navigate('Profile', {
                 uid,
-              })
-            }
+              });
+            },
           })}
           options={{
             tabBarIcon: ({ color }) => (
@@ -111,6 +116,6 @@ const mapStateToProps = store => ({
 });
 
 const mapDispatchToProps = dispatch =>
-  bindActionCreators({ fetchUser, fetchUserPosts }, dispatch);
+  bindActionCreators({ fetchUser, fetchUserPosts, fetchUserFollowing }, dispatch);
 
 export default connect(mapStateToProps, mapDispatchToProps)(Main);

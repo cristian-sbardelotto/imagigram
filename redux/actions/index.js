@@ -3,7 +3,11 @@ import { getAuth } from 'firebase/auth';
 import 'firebase/auth';
 import 'firebase/firestore';
 
-import { USER_STATE_CHANGE, USER_POST_CHANGE } from '../constants';
+import {
+  USER_STATE_CHANGE,
+  USER_POST_CHANGE,
+  USER_FOLLOWING_CHANGE,
+} from '../constants';
 
 import { db, app } from '../../database/db';
 
@@ -17,7 +21,7 @@ export const fetchUser = () => {
     getDoc(docRef).then(snapshot => {
       if (snapshot.exists) {
         const data = snapshot.data();
-        console.log(`Data: ${data}`);
+        console.log({ ...data, uid });
         dispatch({ type: USER_STATE_CHANGE, currentUser: { ...data, uid } });
       } else {
         console.log('Action Fetch User: User does not exist');
@@ -44,5 +48,22 @@ export const fetchUserPosts = () => {
     });
 
     dispatch({ type: USER_POST_CHANGE, posts });
+  };
+};
+
+export const fetchUserFollowing = () => {
+  return async dispatch => {
+    const auth = getAuth(app);
+    const uid = auth.currentUser.uid;
+
+    const followingRef = collection(db, 'following');
+
+    const queryFollowing = query(
+      collection(followingRef, uid, 'userFollowing')
+    );
+    const querySnapshot = await getDocs(queryFollowing);
+    const following = querySnapshot.docs.map(doc => doc.id);
+
+    dispatch({ type: USER_FOLLOWING_CHANGE, following });
   };
 };
