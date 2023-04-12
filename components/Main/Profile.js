@@ -1,8 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { View, FlatList, Image } from 'react-native';
-import { Avatar, Card } from 'react-native-paper';
+import { Avatar, Card, Button } from 'react-native-paper';
 
-import { doc, collection, query, getDocs, getDoc } from 'firebase/firestore';
+import {
+  doc,
+  collection,
+  query,
+  getDocs,
+  getDoc,
+  setDoc,
+} from 'firebase/firestore';
 import { db } from '../../database/db';
 
 import { connect } from 'react-redux';
@@ -10,6 +17,7 @@ import { connect } from 'react-redux';
 const Profile = ({ currentUser, posts, route }) => {
   const [user, setUser] = useState(null);
   const [userPosts, setUserPosts] = useState([]);
+  const [isFollowing, setIsFollowing] = useState(false);
   const { uid } = route.params;
 
   useEffect(() => {
@@ -36,18 +44,24 @@ const Profile = ({ currentUser, posts, route }) => {
   };
 
   const fetchUserPosts = async () => {
-   const postsRef = collection(db, 'posts');
+    const postsRef = collection(db, 'posts');
 
-   const queryPosts = query(collection(postsRef, uid, 'userPosts'));
-   const querySnapshot = await getDocs(queryPosts);
+    const queryPosts = query(collection(postsRef, uid, 'userPosts'));
+    const querySnapshot = await getDocs(queryPosts);
 
-   const posts = querySnapshot.docs.map(doc => {
-     const data = doc.data();
-     const id = doc.id;
-     return { id, ...data };
-   });
+    const posts = querySnapshot.docs.map(doc => {
+      const data = doc.data();
+      const id = doc.id;
+      return { id, ...data };
+    });
 
-   setUserPosts(posts);
+    setUserPosts(posts);
+  };
+
+  const handleFollow = async () => {
+    const followingRef = collection(db, 'following');
+    await setDoc(doc(followingRef, currentUser.uid, 'userFollowing', uid), {});
+    setIsFollowing(true);
   };
 
   if (!user) return <View />;
@@ -70,6 +84,22 @@ const Profile = ({ currentUser, posts, route }) => {
               />
             )}
           />
+          <Card.Content>
+            <Card.Actions>
+              {uid && uid !== currentUser.uid && (
+                <>
+                  {!isFollowing && (
+                    <Button
+                      icon='account-multiple-plus-outline'
+                      onPress={handleFollow}
+                    >
+                      Follow
+                    </Button>
+                  )}
+                </>
+              )}
+            </Card.Actions>
+          </Card.Content>
         </Card>
       </View>
       <View style={{ flex: 1 }}>
@@ -78,14 +108,9 @@ const Profile = ({ currentUser, posts, route }) => {
           horizontal={false}
           data={userPosts}
           renderItem={({ item }) => (
-            <View style={{ flex: '1/3', height: 100 }}>
+            <View style={{ flex: 1 / 3, height: 100 }}>
               <Image
-                style={{
-                  flex: 1,
-                  aspectRatio: '1/1',
-                  height: '100px',
-                  width: '100px',
-                }}
+                style={{ flex: 1, aspectRatio: 1 / 1 }}
                 source={{ uri: item.downloadURL }}
               />
             </View>
