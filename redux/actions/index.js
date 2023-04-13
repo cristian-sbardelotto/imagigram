@@ -7,6 +7,7 @@ import {
   USER_STATE_CHANGE,
   USER_POST_CHANGE,
   USER_FOLLOWING_CHANGE,
+  CLEAR_DATA,
 } from '../constants';
 
 import { db, app } from '../../database/db';
@@ -67,3 +68,7 @@ export const fetchUserFollowing = () => {
     dispatch({ type: USER_FOLLOWING_CHANGE, following });
   };
 };
+
+export const clearData = () => {
+  return (dispatch) => dispatch({ type: CLEAR_DATA })
+}

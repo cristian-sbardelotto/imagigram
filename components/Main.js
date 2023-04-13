@@ -9,6 +9,7 @@ import {
   fetchUser,
   fetchUserPosts,
   fetchUserFollowing,
+  clearData,
 } from '../redux/actions';
 
 import { getAuth } from 'firebase/auth';
@@ -24,6 +25,7 @@ const Null = () => null;
 
 const Main = ({ fetchUser, fetchUserPosts, fetchUserFollowing }) => {
   useEffect(() => {
+    clearData();
     fetchUser();
     fetchUserPosts();
     fetchUserFollowing();
@@ -116,6 +118,6 @@ const mapStateToProps = store => ({
 });
 
 const mapDispatchToProps = dispatch =>
-  bindActionCreators({ fetchUser, fetchUserPosts, fetchUserFollowing }, dispatch);
+  bindActionCreators({ fetchUser, fetchUserPosts, fetchUserFollowing, clearData }, dispatch);
 
 export default connect(mapStateToProps, mapDispatchToProps)(Main);

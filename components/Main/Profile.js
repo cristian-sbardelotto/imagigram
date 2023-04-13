@@ -11,7 +11,8 @@ import {
   setDoc,
   deleteDoc,
 } from 'firebase/firestore';
-import { db } from '../../database/db';
+import { getAuth } from 'firebase/auth';
+import { app, db } from '../../database/db';
 
 import { connect } from 'react-redux';
 import { fetchUserFollowing } from '../../redux/actions';
@@ -90,6 +91,11 @@ const Profile = ({
     fetchUserFollowing();
   };
 
+  const handleLogout = () => {
+    const auth = getAuth(app);
+    auth.signOut();
+  };
+
   if (!user) return <View />;
 
   return (
@@ -131,6 +137,16 @@ const Profile = ({
                     </Button>
                   )}
                 </>
+              )}
+              {uid && uid === currentUser.uid && (
+                <View>
+                  <Button
+                      icon='logout'
+                      onPress={handleLogout}
+                    >
+                      Exit
+                    </Button>
+                </View>
               )}
             </Card.Actions>
           </Card.Content>
