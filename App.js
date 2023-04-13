@@ -17,8 +17,8 @@ import Landing from './components/auth/Landing';
 import Register from './components/auth/Register';
 import Login from './components/auth/Login';
 import Main from './components/Main';
-import Add from './components/Main/Add';
-import Save from './components/Main/Save';
+import Add from './components/main/Add';
+import Save from './components/main/Save';
 
 import { app } from './database/db';
 

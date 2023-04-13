@@ -15,9 +15,9 @@ import {
 import { getAuth } from 'firebase/auth';
 import { app } from '../database/db';
 
-import Feed from './Main/Feed';
-import Profile from './Main/Profile';
-import Search from './Main/Search';
+import Feed from './main/Feed';
+import Profile from './main/Profile';
+import Search from './main/Search';
 
 const Tab = createMaterialBottomTabNavigator();
 
