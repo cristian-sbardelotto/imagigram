@@ -11,7 +11,7 @@ import {
   setDoc,
   deleteDoc,
 } from 'firebase/firestore';
-import { getAuth } from 'firebase/auth';
+import { getAuth, signOut } from 'firebase/auth';
 import { app, db } from '../../database/db';
 
 import { connect } from 'react-redux';
@@ -93,7 +93,14 @@ const Profile = ({
 
   const handleLogout = () => {
     const auth = getAuth(app);
-    auth.signOut();
+
+    signOut(auth)
+      .then(() => {
+        console.log('Signed Out Sucessfully!');
+      })
+      .catch(err => {
+        console.log('An error with the logout ocurred. Error: ' + err);
+      });
   };
 
   if (!user) return <View />;
@@ -141,11 +148,11 @@ const Profile = ({
               {uid && uid === currentUser.uid && (
                 <View>
                   <Button
-                      icon='logout'
-                      onPress={handleLogout}
-                    >
-                      Exit
-                    </Button>
+                    icon='logout'
+                    onPress={handleLogout}
+                  >
+                    Exit
+                  </Button>
                 </View>
               )}
             </Card.Actions>
@@ -174,7 +181,7 @@ const Profile = ({
 const mapStateToProps = store => ({
   currentUser: store.userState.currentUser,
   posts: store.userState.posts,
-  following: store.userState.following
+  following: store.userState.following,
 });
 
 const mapDispatchToProps = { fetchUserFollowing };
