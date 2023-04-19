@@ -23,7 +23,7 @@ const Tab = createMaterialBottomTabNavigator();
 
 const Null = () => null;
 
-const Main = ({ fetchUser, fetchUserPosts, fetchUserFollowing }) => {
+const Main = ({ fetchUser, fetchUserPosts, fetchUserFollowing, clearData }) => {
   useEffect(() => {
     clearData();
     fetchUser();

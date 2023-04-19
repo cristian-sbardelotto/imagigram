@@ -23,6 +23,7 @@ const Profile = ({
   posts,
   route,
   fetchUserFollowing,
+  clearData
 }) => {
   const [user, setUser] = useState(null);
   const [userPosts, setUserPosts] = useState([]);
@@ -99,7 +100,7 @@ const Profile = ({
         console.log('Signed Out Sucessfully!');
       })
       .catch(err => {
-        console.log('An error with the logout ocurred. Error: ' + err);
+        console.log('An error ocurred with the logout. Error: ' + err);
       });
   };
 
@@ -184,6 +185,6 @@ const mapStateToProps = store => ({
   following: store.userState.following,
 });
 
-const mapDispatchToProps = { fetchUserFollowing };
+const mapDispatchToProps = { fetchUserFollowing, clearData };
 
 export default connect(mapStateToProps, mapDispatchToProps)(Profile);
