@@ -185,6 +185,6 @@ const mapStateToProps = store => ({
   following: store.userState.following,
 });
 
-const mapDispatchToProps = { fetchUserFollowing, clearData };
+const mapDispatchToProps = { fetchUserFollowing };
 
 export default connect(mapStateToProps, mapDispatchToProps)(Profile);
