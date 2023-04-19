@@ -1,12 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, Image, FlatList } from 'react-native';
 import { ActivityIndicator, Avatar, Card, Paragraph } from 'react-native-paper';
 
-import { initialMockData } from '../../data/InitialMock';
+import { connect } from 'react-redux';
 
 const Loading = () => (
   <View style={styles.loadingContainer}>
     <ActivityIndicator
+
       animating={true}
       color={'#ff7300'}
       size='large'
@@ -14,9 +15,16 @@ const Loading = () => (
   </View>
 );
 
-const Feed = () => {
-  const [posts] = useState(initialMockData);
+const Feed = ({ feed, following, usersFollowingLoaded }) => {
+  const [posts, setPosts] = useState([]);
 
+  useEffect(() => {
+    if (following.length > 0 && (usersFollowingLoaded === following.length)) {
+      feed.sort((x, y) => x.creation - y.creation)
+      setPosts(feed);
+    }
+
+  }, [feed, usersFollowingLoaded]);
   return (
     <View style={styles.container}>
       {posts.length === 0 && <Loading />}
@@ -82,4 +90,10 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Feed;
+const mapStateToProps = store => ({
+  following: store.userState.following,
+  feed: store.usersState.feed,
+  usersFollowingLoaded: store.usersState.usersFollowingLoaded,
+})
+
+export default connect(mapStateToProps, null)(Feed);

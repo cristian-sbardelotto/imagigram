@@ -1,4 +1,11 @@
-import { collection, doc, getDoc, query, getDocs } from 'firebase/firestore';
+import {
+  collection,
+  doc,
+  getDoc,
+  query,
+  getDocs,
+  orderBy,
+} from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 import 'firebase/auth';
 import 'firebase/firestore';
@@ -8,6 +15,8 @@ import {
   USER_POST_CHANGE,
   USER_FOLLOWING_CHANGE,
   CLEAR_DATA,
+  USERS_DATA_CHANGE,
+  USERS_POST_CHANGE,
 } from '../constants';
 
 import { db, app } from '../../database/db';
@@ -66,9 +75,57 @@ export const fetchUserFollowing = () => {
     const following = querySnapshot.docs.map(doc => doc.id);
 
     dispatch({ type: USER_FOLLOWING_CHANGE, following });
+
+    following.map((value, index) => {
+      dispatch(fetchUsersData(following[index], true));
+    });
   };
 };
 
-export const clearData = () => {
-  return (dispatch) => dispatch({ type: CLEAR_DATA })
+export const fetchUsersData = (uid, getPosts) => {
+  return (dispatch, getState) => {
+    const found = getState().usersState.users.some(el => el.uid === uid);
+
+    if (!found) {
+      const docRef = doc(db, 'users', uid);
+      getDoc(docRef).then(snapshot => {
+        if (snapshot.exists) {
+          const data = snapshot.data();
+          dispatch({ type: USERS_DATA_CHANGE, user: { ...data, uid } });
+        } else {
+          console.log('Action Fetch Users Data: Users data does not exists');
+        }
+      });
+
+      if (getPosts) {
+        dispatch(fetchUsersFollowingPosts(uid));
+      }
+    }
+  };
+};
+
+export function fetchUsersFollowingPosts(uid) {
+  return (dispatch, getState) => {
+    const postsRef = collection(db, 'posts');
+    const queryPosts = query(
+      collection(postsRef, uid, 'userPosts'),
+      orderBy('creation')
+    );
+
+    getDocs(queryPosts).then(snapshot => {
+      const user = getState().usersState.users.find(el => el?.uid === uid);
+
+      const posts = snapshot.docs.map(doc => {
+        const data = doc.data();
+        const id = doc.id;
+        return { id, ...data, user };
+      });
+
+      dispatch({ type: USERS_POST_CHANGE, posts, uid });
+    });
+  };
 }
+
+export const clearData = () => {
+  return dispatch => dispatch({ type: CLEAR_DATA });
+};
