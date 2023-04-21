@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, FlatList } from 'react-native';
 import { Avatar, Chip, Paragraph, Button, TextInput } from 'react-native-paper';
 
-import { collection, addDoc } from 'firebase/firestore';
+import { collection, addDoc, query, getDocs } from 'firebase/firestore';
 import { db } from '../../database/db';
 
 import { connect } from 'react-redux';
@@ -11,10 +11,47 @@ import { bindActionCreators } from 'redux';
 const genericAvatar =
   'https://wealthspire.com/wp-content/uploads/2017/06/avatar-placeholder-generic-1.jpg';
 
-const Comment = ({ currentUser, route }) => {
+const Comment = ({ currentUser, users, route }) => {
   const { postId, uid } = route.params;
   const [currentComment, setCurrentComment] = useState('');
-  const [comments, setComments] = useState([]);
+  const [commentslist, setCommentsList] = useState([]);
+  const [showUpdate, setShowUpdate] = useState(true);
+
+  useEffect(() => {
+    if (showUpdate) {
+      const postsRef = collection(db, 'posts');
+      const queryComments = query(
+        collection(postsRef, uid, 'userPosts', postId, 'comments')
+      );
+
+      getDocs(queryComments).then(snapshot => {
+        const comments = snapshot.docs.map(doc => {
+          const data = doc.data();
+          const id = doc.id;
+          return { id, ...data };
+        });
+
+        const updatedComments = comments.map(comment => {
+          if (users) {
+            if (comment.hasOwnProperty('user')) return comment;
+
+            const creator = users?.find(user => user.uid === comment.creator);
+
+            if (creator) {
+              comment.user = creator;
+            } else {
+              comment.user = currentUser;
+            }
+            return comment;
+          }
+        });
+
+        setCommentsList(updatedComments);
+      });
+
+      setShowUpdate(false);
+    }
+  }, [postId, showUpdate]);
 
   const handleCommentSubmit = () => {
     if (currentComment) {
@@ -25,7 +62,8 @@ const Comment = ({ currentUser, route }) => {
         creator: currentUser.uid,
         comment: currentComment,
       }).then(snapshot => {
-        console.log(`Comment '${currentComment}' successfully added!`);
+        setShowUpdate(true);
+        console.log(`Comentário ${currentComment} adicionado com sucesso!`);
       });
     }
   };
@@ -35,7 +73,7 @@ const Comment = ({ currentUser, route }) => {
       <FlatList
         numColumns={1}
         horizontal={false}
-        data={comments}
+        data={commentslist}
         renderItem={({ item }) => (
           <>
             <Chip
@@ -56,12 +94,14 @@ const Comment = ({ currentUser, route }) => {
           </>
         )}
       />
+
       <View>
         <TextInput
           placeholder='Leave a comment...'
           value={currentComment}
           onChangeText={value => setCurrentComment(value)}
         />
+
         <Button
           icon='send'
           mode='contained'
@@ -74,6 +114,9 @@ const Comment = ({ currentUser, route }) => {
   );
 };
 
-const mapStateToProps = store => ({ currentUser: store.userState.currentUser });
+const mapStateToProps = store => ({
+  currentUser: store.userState.currentUser,
+  users: store.usersState.users,
+});
 
 export default connect(mapStateToProps, null)(Comment);
