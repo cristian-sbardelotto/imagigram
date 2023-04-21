@@ -1,13 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, Image, FlatList } from 'react-native';
-import { ActivityIndicator, Avatar, Card, Paragraph } from 'react-native-paper';
+import {
+  ActivityIndicator,
+  Avatar,
+  Card,
+  Paragraph,
+  Button,
+} from 'react-native-paper';
 
 import { connect } from 'react-redux';
 
 const Loading = () => (
   <View style={styles.loadingContainer}>
     <ActivityIndicator
-
       animating={true}
       color={'#ff7300'}
       size='large'
@@ -15,15 +20,14 @@ const Loading = () => (
   </View>
 );
 
-const Feed = ({ feed, following, usersFollowingLoaded }) => {
+const Feed = ({ feed, navigation, following, usersFollowingLoaded }) => {
   const [posts, setPosts] = useState([]);
 
   useEffect(() => {
-    if (following.length > 0 && (usersFollowingLoaded === following.length)) {
-      feed.sort((x, y) => x.creation - y.creation)
+    if (following.length > 0 && usersFollowingLoaded === following.length) {
+      feed.sort((x, y) => x.creation - y.creation);
       setPosts(feed);
     }
-
   }, [feed, usersFollowingLoaded]);
   return (
     <View style={styles.container}>
@@ -58,6 +62,20 @@ const Feed = ({ feed, following, usersFollowingLoaded }) => {
                   />
                 </View>
                 <Paragraph>{item?.caption}</Paragraph>
+
+                <Card.Actions>
+                  <Button
+                    icon={'comment-arrow-right'}
+                    onPress={() => {
+                      navigation.navigate('Comment', {
+                        postId: item.id,
+                        uid: item.user.uid,
+                      });
+                    }}
+                  >
+                    Comments
+                  </Button>
+                </Card.Actions>
               </Card.Content>
             </Card>
           )}
@@ -94,6 +112,6 @@ const mapStateToProps = store => ({
   following: store.userState.following,
   feed: store.usersState.feed,
   usersFollowingLoaded: store.usersState.usersFollowingLoaded,
-})
+});
 
 export default connect(mapStateToProps, null)(Feed);
