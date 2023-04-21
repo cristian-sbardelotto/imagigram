@@ -6,9 +6,16 @@ import {
   Card,
   Paragraph,
   Button,
+  Caption
 } from 'react-native-paper';
 
 import { connect } from 'react-redux';
+
+import { collection, doc, setDoc } from 'firebase/firestore';
+
+import { db } from '../../database/db';
+
+const genericAvatar = 'https://wealthspire.com/wp-content/uploads/2017/06/avatar-placeholder-generic-1.jpg';
 
 const Loading = () => (
   <View style={styles.loadingContainer}>
@@ -20,7 +27,7 @@ const Loading = () => (
   </View>
 );
 
-const Feed = ({ feed, navigation, following, usersFollowingLoaded }) => {
+const Feed = ({ currentUser, feed, navigation, following, usersFollowingLoaded }) => {
   const [posts, setPosts] = useState([]);
 
   useEffect(() => {
@@ -29,6 +36,15 @@ const Feed = ({ feed, navigation, following, usersFollowingLoaded }) => {
       setPosts(feed);
     }
   }, [feed, usersFollowingLoaded]);
+
+  const onLikePress = async (userId, postId) => {
+   const postsRef = collection(db, 'posts');
+   await setDoc(
+     doc(postsRef, userId, 'userPosts', postId, 'likes', currentUser.uid),
+     {}
+   );
+  }
+
   return (
     <View style={styles.container}>
       {posts.length === 0 && <Loading />}
@@ -49,7 +65,7 @@ const Feed = ({ feed, navigation, following, usersFollowingLoaded }) => {
                     {...props}
                     source={
                       item?.user?.avatar ||
-                      'https://wealthspire.com/wp-content/uploads/2017/06/avatar-placeholder-generic-1.jpg'
+                      genericAvatar
                     }
                   />
                 )}
@@ -64,6 +80,14 @@ const Feed = ({ feed, navigation, following, usersFollowingLoaded }) => {
                 <Paragraph>{item?.caption}</Paragraph>
 
                 <Card.Actions>
+                  <Caption>10</Caption>
+                  <Button
+                    icon={'heart'}
+                    onPress={() => onLikePress(item.user.uid, item.id)}
+                  >
+                    Like
+                  </Button>
+
                   <Button
                     icon={'comment-arrow-right'}
                     onPress={() => {
@@ -109,6 +133,7 @@ const styles = StyleSheet.create({
 });
 
 const mapStateToProps = store => ({
+  currentUser: store.userState.currentUser,
   following: store.userState.following,
   feed: store.usersState.feed,
   usersFollowingLoaded: store.usersState.usersFollowingLoaded,
