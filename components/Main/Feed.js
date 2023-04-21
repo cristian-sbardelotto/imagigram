@@ -6,16 +6,17 @@ import {
   Card,
   Paragraph,
   Button,
-  Caption
+  Caption,
 } from 'react-native-paper';
 
 import { connect } from 'react-redux';
 
-import { collection, doc, setDoc } from 'firebase/firestore';
+import { collection, doc, setDoc, deleteDoc } from 'firebase/firestore';
 
 import { db } from '../../database/db';
 
-const genericAvatar = 'https://wealthspire.com/wp-content/uploads/2017/06/avatar-placeholder-generic-1.jpg';
+const genericAvatar =
+  'https://wealthspire.com/wp-content/uploads/2017/06/avatar-placeholder-generic-1.jpg';
 
 const Loading = () => (
   <View style={styles.loadingContainer}>
@@ -27,7 +28,13 @@ const Loading = () => (
   </View>
 );
 
-const Feed = ({ currentUser, feed, navigation, following, usersFollowingLoaded }) => {
+const Feed = ({
+  currentUser,
+  feed,
+  navigation,
+  following,
+  usersFollowingLoaded,
+}) => {
   const [posts, setPosts] = useState([]);
 
   useEffect(() => {
@@ -38,12 +45,18 @@ const Feed = ({ currentUser, feed, navigation, following, usersFollowingLoaded }
   }, [feed, usersFollowingLoaded]);
 
   const onLikePress = async (userId, postId) => {
-   const postsRef = collection(db, 'posts');
-   await setDoc(
-     doc(postsRef, userId, 'userPosts', postId, 'likes', currentUser.uid),
-     {}
-   );
-  }
+    const postsRef = collection(db, 'posts');
+    await setDoc(
+      doc(postsRef, userId, 'userPosts', postId, 'likes', currentUser.uid),
+      {}
+    );
+  };
+
+  const onDislikePress = async (userId, postId) => {
+    await deleteDoc(
+      doc(db, 'posts', userId, 'userPosts', postId, 'likes', currentUser.uid)
+    );
+  };
 
   return (
     <View style={styles.container}>
@@ -63,10 +76,7 @@ const Feed = ({ currentUser, feed, navigation, following, usersFollowingLoaded }
                   <Avatar.Image
                     size={24}
                     {...props}
-                    source={
-                      item?.user?.avatar ||
-                      genericAvatar
-                    }
+                    source={item?.user?.avatar || genericAvatar}
                   />
                 )}
               />
@@ -80,13 +90,23 @@ const Feed = ({ currentUser, feed, navigation, following, usersFollowingLoaded }
                 <Paragraph>{item?.caption}</Paragraph>
 
                 <Card.Actions>
-                  <Caption>10</Caption>
-                  <Button
-                    icon={'heart'}
-                    onPress={() => onLikePress(item.user.uid, item.id)}
-                  >
-                    Like
-                  </Button>
+                  <Caption>{item?.likes || 2}</Caption>
+                  
+                  {item?.currentUserLike ? (
+                    <Button
+                      icon='heart'
+                      onPress={() => onDislikePress(item.user.uid, item.id)}
+                    >
+                      Dislike
+                    </Button>
+                  ) : (
+                    <Button
+                      icon='heart'
+                      onPress={() => onLikePress(item.user.uid, item.id)}
+                    >
+                      Like
+                    </Button>
+                  )}
 
                   <Button
                     icon={'comment-arrow-right'}
