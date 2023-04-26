@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { View, TextInput, Button } from 'react-native';
+import { View } from 'react-native';
+import { TextInput, Button } from 'react-native-paper';
 
 import { createUserWithEmailAndPassword, getAuth } from 'firebase/auth';
-import {  collection, setDoc, doc } from 'firebase/firestore';
+import { collection, setDoc, doc } from 'firebase/firestore';
 
 import { app, db } from '../../database/db';
 
@@ -26,27 +27,38 @@ const Register = () => {
   };
 
   return (
-    <View>
-      <TextInput
-        placeholder='Nome'
-        onChangeText={setName}
-      />
+    <View
+      style={{
+        height: '60vh',
+        display: 'flex',
+        justifyContent: 'space-between',
+      }}
+    >
+      <View>
+        <TextInput
+          placeholder='Nome'
+          onChangeText={setName}
+        />
 
-      <TextInput
-        placeholder='E-mail'
-        onChangeText={setEmail}
-      />
+        <TextInput
+          placeholder='E-mail'
+          onChangeText={setEmail}
+        />
 
-      <TextInput
-        placeholder='Senha'
-        onChangeText={setPassword}
-        secureTextEntry
-      />
+        <TextInput
+          placeholder='Senha'
+          onChangeText={setPassword}
+          secureTextEntry
+        />
+      </View>
 
       <Button
-        title='Sign Up'
+        buttonColor='rgba(255, 115, 0, 0.3)'
+        icon={'login-variant'}
         onPress={handleSubmit}
-      />
+      >
+        Sign Up
+      </Button>
     </View>
   );
 };

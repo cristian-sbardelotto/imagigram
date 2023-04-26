@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { View, TextInput, Button } from 'react-native';
+import { View } from 'react-native';
+import { TextInput, Button } from 'react-native-paper';
 
 import { signInWithEmailAndPassword, getAuth } from 'firebase/auth';
 
@@ -16,22 +17,33 @@ const Login = () => {
   };
 
   return (
-    <View>
-      <TextInput
-        placeholder='E-mail'
-        onChangeText={setEmail}
-      />
+    <View
+      style={{
+        height: '60vh',
+        display: 'flex',
+        justifyContent: 'space-between',
+      }}
+    >
+      <View>
+        <TextInput
+          placeholder='E-mail'
+          onChangeText={setEmail}
+        />
 
-      <TextInput
-        placeholder='Senha'
-        onChangeText={setPassword}
-        secureTextEntry
-      />
+        <TextInput
+          placeholder='Senha'
+          onChangeText={setPassword}
+          secureTextEntry
+        />
+      </View>
 
       <Button
-        title='Sign In'
+        buttonColor='rgba(255, 115, 0, 0.3)'
+        icon={'login-variant'}
         onPress={handleSubmit}
-      />
+      >
+        Sign In
+      </Button>
     </View>
   );
 };

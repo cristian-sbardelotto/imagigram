@@ -109,7 +109,7 @@ const Feed = ({
                     </Button>
                   ) : (
                     <Button
-                      icon='heart'
+                      icon='heart-outline'
                       onPress={() => onLikePress(item.user.uid, item.id)}
                     >
                       Like
