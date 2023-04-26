@@ -1,6 +1,12 @@
 import React, { useEffect, useState } from 'react';
 
-import { View, Text } from 'react-native';
+import { View } from 'react-native';
+import {
+  DefaultTheme,
+  Provider as PaperProvider,
+  ActivityIndicator,
+  MD2Colors,
+} from 'react-native-paper';
 
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 
@@ -12,7 +18,7 @@ import { createStore, applyMiddleware, compose } from 'redux';
 import rootReducers from './redux/reducers';
 import thunk from 'redux-thunk';
 
-
+import HeaderBar from './components/main/HeaderBar.js';
 import Landing from './components/auth/Landing';
 import Register from './components/auth/Register';
 import Login from './components/auth/Login';
@@ -32,6 +38,16 @@ const store = createStore(
     window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()
   )
 );
+
+const theme = {
+  ...DefaultTheme,
+  roundness: 2,
+  colors: {
+    ...DefaultTheme.colors,
+    primary: '#ff7300',
+    accent: '#ffffff',
+  },
+};
 
 const App = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -60,55 +76,61 @@ const App = () => {
         gap: '1rem',
       }}
     >
-      <Text>Loading...</Text>
+      <ActivityIndicator
+        animating={true}
+        color={MD2Colors.orange500}
+        size='large'
+      />
     </View>
   );
 
   const LoggedOutScreen = () => (
-    <NavigationContainer>
-      <Stack.Navigator>
-        <Stack.Screen
-          name='Landing'
-          component={Landing}
-          options={{ headerShown: false }}
-        />
-
-        <Stack.Screen
-          name='Register'
-          component={Register}
-        />
-
-        <Stack.Screen
-          name='Login'
-          component={Login}
-        />
-      </Stack.Navigator>
-    </NavigationContainer>
+    <PaperProvider theme={theme}>
+      <NavigationContainer theme={theme}>
+        <Stack.Navigator initialRouteName='Landing'>
+          <Stack.Screen
+            name='Landing'
+            component={Landing}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name='Register'
+            component={Register}
+          />
+          <Stack.Screen
+            name='Login'
+            component={Login}
+          />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </PaperProvider>
   );
 
   const LoggedInScreen = () => (
     <Provider store={store}>
-      <NavigationContainer>
-        <Stack.Navigator initialRouteName='Main'>
-          <Stack.Screen
-            name='Main'
-            component={Main}
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen
-            name='Add'
-            component={Add}
-          />
-          <Stack.Screen
-            name='Save'
-            component={Save}
-          />
-          <Stack.Screen
-            name='Comment'
-            component={Comment}
-          />
-        </Stack.Navigator>
-      </NavigationContainer>
+      <PaperProvider theme={theme}>
+        <NavigationContainer theme={theme}>
+          <Stack.Navigator initialRouteName='Main'>
+            <Stack.Screen
+              name='Main'
+              component={Main}
+              options={{ header: props => <HeaderBar {...props} /> }}
+            />
+            <Stack.Screen
+              name='Add'
+              component={Add}
+            />
+            <Stack.Screen
+              name='Save'
+              component={Save}
+            />
+            <Stack.Screen
+              name='Comment'
+              component={Comment}
+            />
+          </Stack.Navigator>
+        </NavigationContainer>
+      </PaperProvider>
     </Provider>
   );
 

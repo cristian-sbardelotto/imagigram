@@ -1,26 +1,30 @@
 import React from 'react';
-import { Text, View, Button } from 'react-native';
+import { View, Image } from 'react-native';
+import { Button } from 'react-native-paper';
+
+import logo from '../../assets/logo.png';
 
 const Landing = ({ navigation }) => {
   return (
-    <View
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        height: '100vh',
-        gap: '1rem'
-      }}
-    >
-      <Text style={{ marginBottom: '1rem' }}>Welcome to Imagigram!</Text>
+    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+      <Image
+        style={{ width: '43%', height: 205, marginBottom: 48 }}
+        source={logo}
+      />
       <Button
-        title='Register'
+        style={{ marginTop: 12 }}
+        icon='account-plus-outline'
         onPress={() => navigation.navigate('Register')}
-      />
+      >
+        Register
+      </Button>
       <Button
-        title='Login'
+        style={{ marginTop: 12 }}
+        icon='login-variant'
         onPress={() => navigation.navigate('Login')}
-      />
+      >
+        Login
+      </Button>
     </View>
   );
 };
