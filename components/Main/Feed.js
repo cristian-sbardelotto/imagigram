@@ -10,6 +10,7 @@ import {
 } from 'react-native-paper';
 
 import { connect } from 'react-redux';
+import { fetchUsersFollowingLikes } from '../../redux/actions';
 
 import { collection, doc, setDoc, deleteDoc } from 'firebase/firestore';
 
@@ -34,6 +35,7 @@ const Feed = ({
   navigation,
   following,
   usersFollowingLoaded,
+  fetchUsersFollowingLikes,
 }) => {
   const [posts, setPosts] = useState([]);
 
@@ -50,12 +52,18 @@ const Feed = ({
       doc(postsRef, userId, 'userPosts', postId, 'likes', currentUser.uid),
       {}
     );
+
+    fetchUsersFollowingLikes(userId, postId);
+
+    console.log('userID: ', userId, 'post Id: ', postId);
   };
 
   const onDislikePress = async (userId, postId) => {
     await deleteDoc(
       doc(db, 'posts', userId, 'userPosts', postId, 'likes', currentUser.uid)
     );
+
+    fetchUsersFollowingLikes(userId, postId);
   };
 
   return (
@@ -90,9 +98,9 @@ const Feed = ({
                 <Paragraph>{item?.caption}</Paragraph>
 
                 <Card.Actions>
-                  <Caption>{item?.likes || 2}</Caption>
-                  
-                  {item?.currentUserLike ? (
+                  <Caption>{item?.likes}</Caption>
+
+                  {item?.currentUserLike && item?.likes > 0 ? (
                     <Button
                       icon='heart'
                       onPress={() => onDislikePress(item.user.uid, item.id)}
@@ -159,4 +167,6 @@ const mapStateToProps = store => ({
   usersFollowingLoaded: store.usersState.usersFollowingLoaded,
 });
 
-export default connect(mapStateToProps, null)(Feed);
+const mapDispatchToProps = { fetchUsersFollowingLikes };
+
+export default connect(mapStateToProps, mapDispatchToProps)(Feed);

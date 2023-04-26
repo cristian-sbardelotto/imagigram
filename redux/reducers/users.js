@@ -3,6 +3,7 @@ import {
   USERS_POST_CHANGE,
   CLEAR_DATA,
   USERS_LIKE_COUNT_CHANGE,
+  USERS_LIKE_CHANGE,
 } from '../constants';
 
 const initialState = {
@@ -30,7 +31,7 @@ const users = (state = initialState, action) => {
       return {
         ...state,
         feed: state.feed.map(post =>
-          post.id == action.postId
+          post.id === action.postId
             ? {
                 ...post,
                 currentUserLike: action.currentUserLike,
@@ -43,7 +44,7 @@ const users = (state = initialState, action) => {
       return {
         ...state,
         feed: state.feed.map(post =>
-          post.id == action.postId
+          post.id === action.postId
             ? {
                 ...post,
                 likes: action.likes,

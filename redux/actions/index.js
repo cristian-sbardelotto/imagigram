@@ -17,6 +17,8 @@ import {
   CLEAR_DATA,
   USERS_DATA_CHANGE,
   USERS_POST_CHANGE,
+  USERS_LIKE_COUNT_CHANGE,
+  USERS_LIKE_CHANGE,
 } from '../constants';
 
 import { db, app } from '../../database/db';
@@ -113,8 +115,10 @@ export function fetchUsersFollowingPosts(uid) {
     );
 
     getDocs(queryPosts).then(snapshot => {
-      const uid = snapshot.docs[0]._key.path.segments[6];
-      const user = getState().usersState.users.find(el => el?.uid === uid);
+      const userUidPostFollowed = snapshot.docs[0]._key.path.segments[6];
+      const user = getState().usersState.users.find(
+        el => el?.uid === userUidPostFollowed
+      );
 
       const posts = snapshot.docs.map(doc => {
         const data = doc.data();
@@ -123,10 +127,63 @@ export function fetchUsersFollowingPosts(uid) {
         return { id, ...data, user };
       });
 
+      posts.map(post => {
+        dispatch(fetchUsersFollowingLikes(userUidPostFollowed, post.id));
+      });
+
       dispatch({ type: USERS_POST_CHANGE, posts, uid });
     });
   };
 }
+
+export const fetchUsersFollowingLikes = (uid, postId) => {
+  return dispatch => {
+    const counterLikesRef = collection(
+      db,
+      'posts',
+      uid,
+      'userPosts',
+      postId,
+      'likes'
+    );
+    const queryUserCounterLikes = query(counterLikesRef);
+
+    getDocs(queryUserCounterLikes).then(snapshot => {
+      const likes = snapshot.docs.length;
+      dispatch({ type: USERS_LIKE_COUNT_CHANGE, postId, likes });
+    });
+
+    const auth = getAuth(app);
+    const authUid = auth.currentUser.uid;
+
+    const authUserLikesRef = collection(
+      db,
+      'posts',
+      uid,
+      'userPosts',
+      postId,
+      'likes'
+    );
+    const queryAuthUserLikes = query(authUserLikesRef);
+
+    getDocs(queryAuthUserLikes).then((snapshot) => {
+      let currentUserLike = false;
+
+      snapshot.docs.map(doc => {
+        const dataUserId = doc._key.path.segments[10];
+        currentUserLike = false;
+
+        if (dataUserId === authUid) {
+          const postId = doc._key.path.segments[8];
+          currentUserLike = true;
+          dispatch({ type: USERS_LIKE_CHANGE, postId, currentUserLike });
+        }
+
+        dispatch({ type: USERS_LIKE_CHANGE, postId, currentUserLike });
+      })
+    });
+  };
+};
 
 export const clearData = () => {
   return dispatch => dispatch({ type: CLEAR_DATA });
