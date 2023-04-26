@@ -12,9 +12,6 @@ import {
   clearData,
 } from '../redux/actions';
 
-import { getAuth } from 'firebase/auth';
-import { app } from '../database/db';
-
 import Feed from './main/Feed';
 import Profile from './main/Profile';
 import Search from './main/Search';
@@ -23,16 +20,19 @@ const Tab = createMaterialBottomTabNavigator();
 
 const Null = () => null;
 
-const Main = ({ fetchUser, fetchUserPosts, fetchUserFollowing, clearData }) => {
+const Main = ({
+  currentUser,
+  fetchUser,
+  fetchUserPosts,
+  fetchUserFollowing,
+  clearData,
+}) => {
   useEffect(() => {
     clearData();
     fetchUser();
     fetchUserPosts();
     fetchUserFollowing();
   }, []);
-
-  const auth = getAuth(app);
-  const uid = auth.currentUser.uid;
 
   return (
     <>
@@ -94,7 +94,7 @@ const Main = ({ fetchUser, fetchUserPosts, fetchUserFollowing, clearData }) => {
             tabPress: event => {
               event.preventDefault();
               navigation.navigate('Profile', {
-                uid,
+                uid: currentUser.uid,
               });
             },
           })}
@@ -118,6 +118,9 @@ const mapStateToProps = store => ({
 });
 
 const mapDispatchToProps = dispatch =>
-  bindActionCreators({ fetchUser, fetchUserPosts, fetchUserFollowing, clearData }, dispatch);
+  bindActionCreators(
+    { fetchUser, fetchUserPosts, fetchUserFollowing, clearData },
+    dispatch
+  );
 
 export default connect(mapStateToProps, mapDispatchToProps)(Main);
